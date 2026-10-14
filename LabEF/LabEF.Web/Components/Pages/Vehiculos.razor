@@ -1,0 +1,87 @@
+@page "/vehiculos"
+@rendermode InteractiveServer
+@using LabEF.Domain
+@using LabEF.DataAccess
+@inject VehiculoRepositorio Repositorio
+
+<PageTitle>Vehículos</PageTitle>
+
+<h1>Vehículos</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Tipo</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Año</th>
+            <th>Detalle</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var v in vehiculos)
+        {
+            <tr>
+                <td>@v.Id</td>
+                <td>@v.GetType().Name</td>
+                <td>@v.Marca</td>
+                <td>@v.Modelo</td>
+                <td>@v.Anio</td>
+                <td>@Detalle(v)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Agregar vehículo</h2>
+
+<div class="form">
+    <select class="form-control" @bind="tipo">
+        <option value="Auto">Auto</option>
+        <option value="Moto">Moto</option>
+    </select>
+    <input class="form-control" @bind="marca" placeholder="Marca" />
+    <input class="form-control" @bind="modelo" placeholder="Modelo" />
+    <input class="form-control" type="number" @bind="anio" placeholder="Año" />
+    <input class="form-control" type="number" @bind="extra"
+           placeholder="@(tipo == "Auto" ? "Cantidad de puertas" : "Cilindrada")" />
+    <button class="btn btn-primary" @onclick="Agregar">Agregar</button>
+</div>
+
+@code {
+    private List<Vehiculo> vehiculos = new();
+    private string tipo = "Auto";
+    private string marca = "";
+    private string modelo = "";
+    private int anio = 2020;
+    private int extra;
+
+    protected override void OnInitialized()
+    {
+        vehiculos = Repositorio.Listar();
+    }
+
+    private void Agregar()
+    {
+        if (string.IsNullOrWhiteSpace(marca) || string.IsNullOrWhiteSpace(modelo)) return;
+
+        Vehiculo nuevo = tipo == "Auto"
+            ? new Auto { Marca = marca, Modelo = modelo, Anio = anio, CantidadPuertas = extra }
+            : new Moto { Marca = marca, Modelo = modelo, Anio = anio, Cilindrada = extra };
+
+        Repositorio.Agregar(nuevo);
+        vehiculos = Repositorio.Listar();
+
+        marca = "";
+        modelo = "";
+        extra = 0;
+    }
+
+    private static string Detalle(Vehiculo v) => v switch
+    {
+        Auto a => $"{a.CantidadPuertas} puertas",
+        Moto m => $"{m.Cilindrada} cc",
+        _ => ""
+    };
+}

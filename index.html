@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ejercicio EF Code First</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+  <!-- ===== ENCABEZADO ===== -->
+  <header>
+    <p class="eyebrow">Entity Framework Core · Ejercicio guiado · 45 min</p>
+    <h1>Ejercicio <span class="spark">EF</span> Code First</h1>
+    <p class="lede">Te damos una aplicación con tres clases de dominio y una página Blazor sencilla, pero sin base de datos. Vas a escribir el <code class="inl">DbContext</code>, generar migraciones y ver qué tablas arma Entity Framework a partir de tus clases, sin escribir una línea de SQL.</p>
+    <div class="chips">
+      <span class="chip">code first</span>
+      <span class="chip">DbContext</span>
+      <span class="chip">migraciones</span>
+      <span class="chip">convenciones de EF</span>
+      <span class="chip">herencia TPH</span>
+      <span class="chip">SQL Server en Docker</span>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- ===== ANTES DE ARRANCAR ===== -->
+    <div class="setup">
+      <h2>Antes de arrancar</h2>
+      <ul>
+        <li><span><b>Rider</b>, el <b>SDK de .NET 9</b>, <b>Docker</b> corriendo y <b>DBeaver</b> para mirar la base.</span></li>
+        <li><span>La solución inicial <code class="inl">LabEF-inicial.zip</code> que te pasa el docente.</span></li>
+        <li><span>Tiempo: <b>45 min</b>, en grupos de 3 o en parejas. Al final tenés una base de datos creada desde tus clases, con dos migraciones aplicadas.</span></li>
+        <li><span>La herramienta de línea de comandos de EF. Rider la usa por detrás para crear y aplicar migraciones; si no la tenés, Rider te ofrece instalarla al abrir la solución, o la instalás vos:</span></li>
+      </ul>
+      <pre data-file="Terminal" data-lang="sh">dotnet tool install --global dotnet-ef --version 9.*   # si ya la tenés, usá "update" en vez de "install"</pre>
+    </div>
+
+    <!-- ===== PASO 0 ===== -->
+    <section class="step" id="paso-0">
+      <div class="num">0</div>
+      <h3>Levantar la base y abrir la solución</h3>
+      <p class="goal">docker compose · LabEF.sln · conexión desde DBeaver</p>
+      <p>Descomprimí <code class="inl">LabEF-inicial.zip</code> y abrí <code class="inl">LabEF.sln</code> con Rider. En la carpeta de la solución hay un <code class="inl">docker-compose.yml</code> con un SQL Server. Abrí la terminal de Rider (queda parada en esa carpeta) y levantalo:</p>
+      <pre data-file="Terminal" data-lang="sh">docker compose up -d   # la primera vez descarga la imagen y tarda un poco</pre>
+      <p>Ahora conectate a ese servidor con <b>DBeaver</b>, para poder mirar las tablas por dentro durante todo el ejercicio. Creá una conexión nueva (<span class="menu">Database → New Database Connection</span>, o el ícono del enchufe con un <span class="menu">+</span>), elegí <b>SQL Server</b> y completá:</p>
+      <ul class="mini">
+        <li><b>Host:</b> <code class="inl">localhost</code> · <b>Port:</b> <code class="inl">1433</code> (revisá el número: es fácil escribir 1443)</li>
+        <li><b>Authentication:</b> usuario y contraseña de SQL Server</li>
+        <li><b>Username:</b> <code class="inl">sa</code> · <b>Password:</b> <code class="inl">Passw1rd</code> (la del <code class="inl">docker-compose.yml</code>)</li>
+        <li><b>Database:</b> dejalo como viene</li>
+      </ul>
+      <p>Tocá <span class="menu">Test Connection</span>. Si DBeaver pide descargar el driver, aceptá. Después <span class="menu">Finish</span>.</p>
+      <div class="call hint">
+        <span class="lbl">Pista</span>
+        Si la conexión falla con un error que menciona el <b>certificado</b> o <b>SSL</b>, es porque el SQL Server del contenedor usa un certificado propio que DBeaver no reconoce. Tildá <b>Trust Server Certificate</b> en la configuración de la conexión. Es lo mismo que hace <code class="inl">TrustServerCertificate=true</code> en el connection string de la app.
+        <br><br>
+        Si da <i>timeout</i>, el problema no es el usuario ni la contraseña: revisá que el contenedor esté corriendo con <code class="inl">docker ps</code> y que el puerto sea <code class="inl">1433</code>.
+      </div>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        La conexión da OK y en el panel de DBeaver ves el servidor. Desplegalo: <b>no existe</b> ninguna base que se llame <code class="inl">LabEF</code>.
+      </div>
+    </section>
+
+    <!-- ===== PASO 1 ===== -->
+    <section class="step" id="paso-1">
+      <div class="num">1</div>
+      <h3>Recorrer la solución</h3>
+      <p class="goal">qué hay y qué falta</p>
+      <p>La solución está separada en tres proyectos:</p>
+      <pre data-file="LabEF.sln" data-lang="sh">LabEF.Web  ──▶  LabEF.DataAccess  ──▶  LabEF.Domain
+(Blazor)        (EF Core)              (clases de dominio)
+
+LabEF.Domain/Vehiculo.cs, Auto.cs, Moto.cs     las clases que vamos a guardar
+LabEF.DataAccess/SqlContext.cs                 el DbContext, todavía vacío
+LabEF.DataAccess/VehiculoRepositorio.cs        lista y agrega vehículos usando el contexto
+LabEF.Web/Program.cs                           falta registrar el contexto
+LabEF.Web/appsettings.json                     el connection string ya está
+LabEF.Web/Components/Pages/Vehiculos.razor     la página para probar</pre>
+      <p>Abrí las tres clases de <code class="inl">LabEF.Domain</code>. <code class="inl">Vehiculo</code> es abstracta y tiene lo común; <code class="inl">Auto</code> y <code class="inl">Moto</code> heredan de ella y agregan un dato propio cada una. Fijate que son clases comunes de C#: no saben nada de bases de datos.</p>
+      <p>Eso es <b>code first</b>: vos escribís las clases, y Entity Framework deduce a partir de ellas qué tablas y columnas tiene que tener la base. El <code class="inl">DbContext</code> es la clase que une las dos cosas: representa la base de datos dentro de tu código.</p>
+      <div class="call think">
+        <span class="lbl">Para pensar</span>
+        En la base relacional no existe la herencia: hay tablas y columnas. ¿Cómo guardarías una <code class="inl">Auto</code> y una <code class="inl">Moto</code> en tablas, si comparten algunos datos y otros no?
+      </div>
+    </section>
+
+    <!-- ===== PASO 2 ===== -->
+    <section class="step" id="paso-2">
+      <div class="num">2</div>
+      <h3>El DbContext y su registro</h3>
+      <p class="goal">decirle a EF qué guardar y dónde</p>
+      <p>Abrí <code class="inl">LabEF.DataAccess/SqlContext.cs</code> y resolvé el <b>TODO 1</b>:</p>
+      <pre data-file="LabEF.DataAccess/SqlContext.cs" data-lang="cs">using LabEF.Domain;
+using Microsoft.EntityFrameworkCore;
+
+namespace LabEF.DataAccess;
+
+public class SqlContext : DbContext
+{
+    public SqlContext(DbContextOptions&lt;SqlContext&gt; options) : base(options)
+    {
+    }
+
+    // TODO 1: agregá acá las propiedades que le dicen a EF qué clases tiene que guardar en la base.
+}</pre>
+      <div class="call hint">
+        <span class="lbl">Pista</span>
+        Cada clase que EF tiene que guardar se declara en el contexto con una propiedad de este estilo: <code class="inl">public DbSet&lt;MiClase&gt; MisClases { get; set; }</code>. Ojo: EF no sale a buscar subclases por su cuenta, solo conoce las clases que le nombrás.
+      </div>
+      <div class="call think">
+        <span class="lbl">Cómo trabaja EF: por convención</span>
+        EF no necesita que le expliques cada detalle de la base: aplica <b>convenciones</b>, reglas que deduce del código. Algunas:
+        <br><br>
+        · El <b>nombre del <code class="inl">DbSet</code></b> se usa como nombre de la tabla.<br>
+        · Una propiedad llamada <code class="inl">Id</code> (o <code class="inl">NombreDeClaseId</code>) es la <b>clave primaria</b>, y si es <code class="inl">int</code> se autoincrementa.<br>
+        · Cada propiedad pública con <code class="inl">get</code> y <code class="inl">set</code> es una <b>columna</b>, con un tipo de SQL según el tipo de C#.<br>
+        · Si la propiedad admite <code class="inl">null</code> en C#, la columna admite <code class="inl">NULL</code>; si no, es <code class="inl">NOT NULL</code>.
+        <br><br>
+        Cuando la convención no alcanza, se puede configurar a mano. Por ahora la dejamos trabajar.
+      </div>
+      <p>Ahora abrí <code class="inl">LabEF.Web/Program.cs</code> y resolvé el <b>TODO 2</b>. El connection string ya está en <code class="inl">appsettings.json</code> con el nombre <code class="inl">DefaultConnection</code>:</p>
+      <pre data-file="LabEF.Web/Program.cs" data-lang="cs">// TODO 2: registrá SqlContext para que use SQL Server con el connection string
+// "DefaultConnection" de appsettings.json
+
+builder.Services.AddScoped&lt;VehiculoRepositorio&gt;();</pre>
+      <div class="call hint">
+        <span class="lbl">Pista</span>
+        Un DbContext se registra con <code class="inl">builder.Services.AddDbContext&lt;MiContexto&gt;(options =&gt; ...)</code>. Adentro le decís qué motor usar (<code class="inl">options.UseSqlServer(...)</code>) y le pasás el connection string, que se lee con <code class="inl">builder.Configuration.GetConnectionString("Nombre")</code>.
+      </div>
+      <p>Corré <b>LabEF.Web</b> con <kbd>▶ Run</kbd> y entrá a <b>Vehículos</b> desde el menú. Mirá qué pasa y después <kbd>■ Stop</kbd>.</p>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        Compila, pero la página de Vehículos <b>falla</b> con un error de SQL Server: la base <code class="inl">LabEF</code> no existe. Tener las clases y el contexto no alcanza: nadie creó la base todavía.
+      </div>
+    </section>
+
+    <!-- ===== PASO 3 ===== -->
+    <section class="step" id="paso-3">
+      <div class="num">3</div>
+      <h3>La primera migración</h3>
+      <p class="goal">EF traduce tus clases a un plan de cambios</p>
+      <p>Una <b>migración</b> es una clase de C# que EF genera comparando tu modelo (las clases y el contexto) con el estado anterior. Describe qué hay que cambiar en la base para que coincida con tu código. Generarla no toca la base: solo escribe archivos.</p>
+      <div class="call trap">
+        <span class="lbl">Regla de oro</span>
+        Antes de crear o aplicar una migración, la app tiene que estar detenida con <kbd>■ Stop</kbd>. EF compila la solución para leer tu modelo, y con la app corriendo los archivos quedan bloqueados.
+      </div>
+      <p>Click derecho sobre el proyecto <code class="inl">LabEF.DataAccess</code> → <span class="menu">Entity Framework Core → Add Migration</span>. En el diálogo:</p>
+      <ul class="mini">
+        <li><b>Migrations project:</b> <code class="inl">LabEF.DataAccess</code>, donde está el contexto y donde van a quedar las migraciones.</li>
+        <li><b>Startup project:</b> <code class="inl">LabEF.Web</code>, el que tiene el <code class="inl">Program.cs</code> y el connection string.</li>
+        <li><b>DbContext class:</b> <code class="inl">SqlContext</code> · <b>Migration name:</b> <code class="inl">Inicial</code></li>
+      </ul>
+      <div class="call hint">
+        <span class="lbl">Pista</span>
+        Si el diálogo no ofrece <code class="inl">SqlContext</code> o la migración falla, revisá los dos proyectos: el de migraciones tiene que ser el que contiene el contexto, y el de inicio, el que lo registra en <code class="inl">Program.cs</code>.
+      </div>
+      <p>Aparece una carpeta <code class="inl">Migrations</code> en <code class="inl">LabEF.DataAccess</code>. <b>Antes de abrirla</b>, escriban su predicción. Después abran el archivo que termina en <code class="inl">_Inicial.cs</code>, lean el método <code class="inl">Up</code> y completen qué pasó.</p>
+      <div class="wide">
+        <table class="log">
+          <thead>
+            <tr><th>Pregunta</th><th>Predicción (antes de abrir)</th><th>Qué dice la migración</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>¿Cuántas tablas crea para los vehículos? ¿Con qué nombre?</td><td><input type="text" data-k="m1-p" aria-label="Predicción 1"></td><td><input type="text" data-k="m1-r" aria-label="Resultado 1"></td></tr>
+            <tr><td>¿Qué columnas tiene? ¿Hay alguna que no esté en tus clases?</td><td><input type="text" data-k="m2-p" aria-label="Predicción 2"></td><td><input type="text" data-k="m2-r" aria-label="Resultado 2"></td></tr>
+            <tr><td>¿Qué columnas admiten <code class="inl">null</code>? ¿Coincide con las propiedades de tus clases?</td><td><input type="text" data-k="m3-p" aria-label="Predicción 3"></td><td><input type="text" data-k="m3-r" aria-label="Resultado 3"></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        En <code class="inl">Migrations</code> hay tres archivos: la migración <code class="inl">_Inicial.cs</code>, su <code class="inl">.Designer.cs</code> y un <code class="inl">SqlContextModelSnapshot.cs</code>, que es la foto del modelo con la que EF va a comparar la próxima vez.
+      </div>
+      <div class="call think">
+        <span class="lbl">Para pensar</span>
+        <code class="inl">CantidadPuertas</code> y <code class="inl">Cilindrada</code> son <code class="inl">int</code>, que en C# no puede ser <code class="inl">null</code>. ¿Por qué EF igual las creó como columnas que admiten <code class="inl">NULL</code>?
+      </div>
+    </section>
+
+    <!-- ===== PASO 4 ===== -->
+    <section class="step" id="paso-4">
+      <div class="num">4</div>
+      <h3>Aplicar la migración y mirar la base</h3>
+      <p class="goal">la jerarquía, vista desde SQL</p>
+      <p>Click derecho sobre <code class="inl">LabEF.DataAccess</code> → <span class="menu">Entity Framework Core → Update Database</span>, con los mismos proyectos de antes. Cuando termine, en DBeaver seleccioná la conexión y apretá <kbd>F5</kbd> para refrescarla.</p>
+      <div class="call hint">
+        <span class="lbl">Dónde mirar</span>
+        Las tablas quedan en <b>Databases → LabEF → Schemas → dbo → Tables</b>. Si no ves la base <code class="inl">LabEF</code> después de refrescar, puede que DBeaver esté mostrando solo una base: editá la conexión (click derecho → <span class="menu">Edit Connection</span>) y activá la opción para mostrar todas las bases. Si con eso tampoco aparece, la migración no se aplicó: revisá la salida del <span class="menu">Update Database</span>.
+      </div>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        Ahora existe la base <code class="inl">LabEF</code>, con dos tablas: la de vehículos y <code class="inl">__EFMigrationsHistory</code>.
+      </div>
+      <p>Corré <b>LabEF.Web</b>, entrá a <b>Vehículos</b> y agregá <b>un auto y una moto</b>. Después <kbd>■ Stop</kbd> y abrí un editor de consultas sobre la base <code class="inl">LabEF</code> (en DBeaver, click derecho sobre la base → <span class="menu">SQL Editor → New SQL script</span>) y ejecutá:</p>
+      <pre data-file="Consulta SQL" data-lang="sh">SELECT * FROM Vehiculos;
+SELECT * FROM __EFMigrationsHistory;</pre>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        Las dos filas están en la <b>misma tabla</b>. La columna <code class="inl">Discriminator</code> dice <code class="inl">Auto</code> o <code class="inl">Moto</code>, y cada fila tiene <code class="inl">NULL</code> en la columna que no le corresponde. En <code class="inl">__EFMigrationsHistory</code> hay una fila con tu migración <code class="inl">Inicial</code>.
+      </div>
+      <div class="call think">
+        <span class="lbl">Cómo modela EF la herencia</span>
+        Lo que acabás de ver es <b>TPH</b> (<i>Table Per Hierarchy</i>, una tabla por jerarquía): toda la jerarquía va en una sola tabla, con una columna <code class="inl">Discriminator</code> que indica de qué clase es cada fila. Es lo que EF hace por convención. Hay otras dos estrategias, que se eligen configurándolas en el contexto:
+        <br><br>
+        · <b>TPT</b> (<i>Table Per Type</i>): una tabla por clase. <code class="inl">Vehiculos</code> guarda lo común, y <code class="inl">Autos</code> y <code class="inl">Motos</code> guardan lo propio, unidas por el <code class="inl">Id</code>. Sin columnas vacías, pero cada consulta necesita juntar tablas.<br>
+        · <b>TPC</b> (<i>Table Per Concrete type</i>): una tabla por clase concreta, cada una con todas las columnas. No hay tabla <code class="inl">Vehiculos</code>, y los datos comunes se repiten en la estructura de cada tabla.
+        <br><br>
+        TPH suele ser la más rápida para consultar; a cambio, las columnas propias de cada subclase tienen que admitir <code class="inl">NULL</code>.
+      </div>
+      <div class="call think">
+        <span class="lbl">Para pensar</span>
+        Si mañana agregás <code class="inl">Camion</code> con cinco propiedades propias, ¿cómo queda la tabla con TPH? ¿En qué caso te convendría más TPT o TPC?
+      </div>
+    </section>
+
+    <!-- ===== PASO 5 ===== -->
+    <section class="step" id="paso-5">
+      <div class="num">5</div>
+      <h3>Cambiar el modelo</h3>
+      <p class="goal">el código y la base se desincronizan</p>
+      <p>Agregá esta propiedad a <code class="inl">Vehiculo</code>, debajo de <code class="inl">Anio</code>:</p>
+      <pre data-file="LabEF.Domain/Vehiculo.cs" data-lang="cs">public string Color { get; set; } = "";</pre>
+      <p>No crees ninguna migración todavía. Corré <b>LabEF.Web</b> y entrá a <b>Vehículos</b>.</p>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        La página falla con un error de SQL Server que habla de una columna <code class="inl">Color</code> inválida. Tu código ya conoce el color, pero la base no.
+      </div>
+      <p><kbd>■ Stop</kbd>. Ahora probá aplicar <span class="menu">Update Database</span> sin crear migración y leé el mensaje de EF:</p>
+      <pre data-file="Salida de Update Database" data-lang="sh">The model for context 'SqlContext' has pending changes. Add a new migration before updating the database.</pre>
+      <p><b>TODO 3:</b> creá una migración llamada <code class="inl">AgregarColor</code>, leé su método <code class="inl">Up</code> y aplicala con <span class="menu">Update Database</span>. Volvé a correr la app.</p>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        La migración nueva solo agrega una columna, sin recrear la tabla. La página vuelve a funcionar, el auto y la moto siguen ahí, y <code class="inl">__EFMigrationsHistory</code> tiene ahora dos filas.
+      </div>
+      <div class="call think">
+        <span class="lbl">Para pensar</span>
+        La columna <code class="inl">Color</code> no admite <code class="inl">NULL</code>, pero ya había filas en la tabla. ¿Qué valor les puso EF a esas filas viejas? Y si un compañero baja tu código con las dos migraciones y tiene su propia base vacía, ¿qué pasa cuando corre <span class="menu">Update Database</span>?
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===== VUELTA EXTRA ===== -->
+  <div class="wrap">
+    <div class="challenge">
+      <h2>🏁 Vuelta extra (opcional)</h2>
+      <p class="goal">para los que terminaron antes</p>
+      <ul>
+        <li>Cambiá una convención a mano: sobreescribí <code class="inl">OnModelCreating</code> en <code class="inl">SqlContext</code> y limitá <code class="inl">Marca</code> a 50 caracteres con <code class="inl">HasMaxLength</code>. Creá la migración y mirá cómo cambia el tipo de la columna.</li>
+        <li>Probá otra estrategia de herencia: en <code class="inl">OnModelCreating</code>, configurá la jerarquía de <code class="inl">Vehiculo</code> con <code class="inl">UseTptMappingStrategy()</code> y creá una migración <b>sin aplicarla</b>. Leé qué tablas propone y después borrala con <span class="menu">Entity Framework Core → Remove Last Migration</span>.</li>
+      </ul>
+    </div>
+
+    <!-- ===== PIE ===== -->
+    <footer>
+      <div class="rule"></div>
+      Entity Framework Core code first · DbContext, migraciones y herencia TPH · Rider, DBeaver, .NET 9 y SQL Server en Docker. Ejercicio guiado de 45 minutos.
+      <br><button id="clear" type="button">Borrar las respuestas de este navegador</button>
+    </footer>
+  </div>
+</body>
+</html>

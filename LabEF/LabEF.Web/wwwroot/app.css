@@ -1,0 +1,72 @@
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #1b1e23;
+    background: #f5f4f1;
+}
+
+.page { display: flex; min-height: 100vh; }
+
+.sidebar {
+    width: 220px;
+    flex: none;
+    background: #4a1530;
+    color: #fff;
+    padding: 20px 14px;
+}
+
+.brand { font-weight: 800; font-size: 20px; margin: 0 0 18px 6px; }
+
+.menu { display: flex; flex-direction: column; gap: 4px; }
+
+.menu-link {
+    color: #f6dbe7;
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+}
+
+.menu-link:hover { background: rgba(255, 255, 255, .08); }
+.menu-link.active { background: #be185d; color: #fff; }
+
+.content { flex: 1; padding: 28px 36px; max-width: 960px; }
+
+h1 { margin-top: 0; }
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    margin: 0 0 28px;
+}
+
+.table th, .table td {
+    border-bottom: 1px solid #dcdad4;
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.table th { background: #ecebe7; font-size: 14px; }
+
+.form { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.form-control {
+    font: inherit;
+    padding: 8px 10px;
+    border: 1px solid #c7c4bb;
+    border-radius: 8px;
+    min-width: 160px;
+}
+
+.btn {
+    font: inherit;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-primary { background: #be185d; color: #fff; }
+.btn-primary:hover { background: #9d174d; }
