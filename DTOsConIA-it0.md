@@ -13,7 +13,7 @@ Te damos una aplicación Blazor separada en tres capas (Domain, BusinessLogic y 
 - **Rider** instalado y un navegador.
 - El **SDK de .NET 9** (con .NET 10 también funciona).
 - La solución inicial `LabDTO-agente.zip` que te pasa el docente. Ya es un repositorio **git**, está parada en la rama `ejercicio-agente` e incluye dos archivos que vas a leer en el Paso 0: `AGENTS.md` y `opencode.jsonc`.
-- **OpenCode v2** (lo instalás en el Paso 0) y una **clave de proveedor de modelo** que te da el docente. No la compartas ni la subas al repositorio.
+- **OpenCode v2** (lo instalás en el Paso 0). Para el modelo de IA vamos a usar uno **gratuito que trae OpenCode, llamado Big Pickle**: no hace falta que pagues nada.
 - Tiempo: **60 min**, en grupos de 3 o en parejas.
 
 ```sh
@@ -53,9 +53,59 @@ PREDECIR  →  PEDIR  →  REVISAR EL DIFF EN RIDER  →  VERIFICAR (build/tests
 
 *terminal de Rider · 5 min*
 
-> **💡 Si tu docente ya lo dejó instalado**, saltá directo a «Verificá la instalación».
+Abrí la terminal integrada de Rider (**View → Tool Windows → Terminal**, o `Alt+F12`).
 
-Abrí la terminal integrada de Rider (**View → Tool Windows → Terminal**, o `Alt+F12`) y probá **una** de estas opciones.
+### Antes de instalar: ¿ya tenés OpenCode?
+
+Corré esto:
+
+```sh
+opencode --version
+```
+
+| Qué ves | Qué significa | Qué hacer |
+|---|---|---|
+| `command not found` (o «no se reconoce el comando») | No lo tenés | Seguí con las opciones de instalación de más abajo |
+| Un número que **empieza con 2** | Ya tenés la versión 2 | Saltá directo a «Elegir el modelo: Big Pickle» |
+| Un número que **empieza con 1** (o menor) | Tenés la **versión 1**, que no sirve para este práctico | Desinstalala (siguiente apartado) y después instalá la versión 2 |
+
+> **⚠️ Por qué hay que desinstalar la versión 1**
+> Las versiones 1 y 2 usan el mismo comando `opencode` y no pueden convivir. Si dejás la 1 instalada, es probable que al escribir `opencode` siga abriéndose la vieja aunque hayas instalado la nueva. En principio no perdés nada: la versión 2 lee la misma configuración que la 1 y migra las credenciales que tuvieras guardadas.
+
+### Si tenés la versión 1: desinstalala
+
+**1. Averiguá dónde está y cómo se instaló.** La ruta que muestra este comando da una pista: una carpeta de npm, Homebrew o Scoop, o una carpeta `.opencode/bin` si se instaló con el script.
+
+```sh
+# macOS / Linux / Git Bash
+which opencode
+```
+
+```powershell
+# PowerShell
+Get-Command opencode | Select-Object Source
+```
+
+**2. Desinstalala con el mismo gestor que usaste para instalarla:**
+
+| Cómo la instalaste | Comando para desinstalar |
+|---|---|
+| npm | `npm uninstall -g opencode-ai` |
+| Homebrew | `brew uninstall opencode` |
+| Scoop (Windows) | `scoop uninstall opencode` |
+| Chocolatey (Windows) | `choco uninstall opencode` |
+| Arch Linux (pacman) | `sudo pacman -R opencode` |
+| Arch Linux (AUR) | `paru -R opencode-bin` |
+| Script `curl ... \| bash` | No hace falta desinstalar: el instalador de la versión 2 (Opción A, abajo) reemplaza el binario de la 1. Pasá directo a instalar. |
+
+**3. Comprobá que no quedó ninguna copia.** Cerrá y volvé a abrir la terminal y corré otra vez `opencode --version`. Tiene que decir `command not found`. Si todavía aparece un número, hay otra copia instalada de otra forma: repetí los pasos 1 y 2 hasta que no quede ninguna.
+
+> **✅ Checkpoint**
+> `opencode --version` dice `command not found` (o ya empieza con 2). Recién ahora instalá la versión 2.
+
+### Instalar la versión 2
+
+Probá **una** de estas opciones.
 
 ### Opción A. Script de instalación (macOS, Linux y WSL)
 
@@ -85,9 +135,6 @@ La página oficial tiene una pestaña por gestor (Homebrew, npm, Bun, pnpm, Yarn
 > **⚠️ Windows**
 > La documentación de la versión 2 indica que los gestores de paquetes de Windows (Scoop, Chocolatey y similares) **no están soportados**. En Windows usá la Opción B, o WSL con la Opción A. Además, la terminal de Rider en Windows suele ser PowerShell, que no entiende `curl ... | bash`.
 
-> **⚠️ ¿Ya tenías OpenCode instalado?**
-> Las versiones 1 y 2 usan el mismo comando `opencode` y no conviven. Si instalaste la 1 con un gestor de paquetes, desinstalala antes de instalar la 2.
-
 ### Verificá la instalación
 
 Cerrá y volvé a abrir la terminal (para que se actualice el `PATH`) y corré:
@@ -97,9 +144,9 @@ opencode --version
 ```
 
 > **✅ Checkpoint**
-> Imprime un número de versión que **empieza con 2**. Si dice `command not found`, probá otra opción. Si empieza con 1, tenés la versión vieja: mirá el recuadro de arriba.
+> Imprime un número de versión que **empieza con 2**. Si dice `command not found`, probá otra opción de instalación. Si empieza con 1, quedó la versión vieja: volvé a «Si tenés la versión 1: desinstalala».
 
-### Conectar el modelo
+### Elegir el modelo: Big Pickle
 
 Posicionate en la carpeta de la solución y arrancá el agente:
 
@@ -108,7 +155,16 @@ cd ruta/a/LabDTO
 opencode
 ```
 
-Dentro de OpenCode escribí `/connect`, elegí el proveedor que indique el docente y pegá la clave. Después podés revisar qué modelo quedó activo con `/models`.
+Dentro de OpenCode escribí `/models` y elegí **Big Pickle** (aparece como `opencode/big-pickle`). Es un modelo gratuito de OpenCode: en principio no te pide clave, registro ni tarjeta.
+
+Si no lo ves en la lista, elegí otro modelo gratuito (traen el sufijo `-free` o precio $0) y avisale al docente.
+
+> **⚠️ Es gratis, pero con condiciones**
+> - Los modelos gratuitos tienen límites de uso. Si aparece un error de límite, esperá un rato o cambiá de modelo con `/models`.
+> - Big Pickle es gratis mientras el equipo de OpenCode junta feedback. Por eso **no pegues en los pedidos claves, datos personales ni código que no sea de este ejercicio**.
+
+> **✅ Checkpoint**
+> Escribís una pregunta simple, por ejemplo `¿Qué es este proyecto?`, y el agente responde.
 
 > **💡 Pista: teclas útiles en OpenCode**
 > - **Enter** envía el pedido. **Ctrl+J** (o Shift+Enter, si tu terminal lo soporta) agrega una línea nueva.
@@ -135,6 +191,22 @@ Antes de seguir, abrí en Rider **`AGENTS.md`** y **`opencode.jsonc`** (están e
 
 > **🤔 Para pensar**
 > Compará la respuesta del agente con el diagrama del Paso 1. ¿Acertó en todo? ¿Por qué conviene arrancar un trabajo nuevo en modo Plan?
+
+### 🆘 Si te trancás
+
+| Síntoma | Qué probar |
+|---|---|
+| `command not found` después de instalar | Cerrá y reabrí la terminal. Si sigue, probá otra opción de instalación |
+| `opencode --version` empieza con 1 | Seguí «Si tenés la versión 1: desinstalala» y volvé a instalar |
+| En Windows, `curl ... \| bash` da error | La terminal de Rider es PowerShell: usá la Opción B (zip) o WSL |
+| No aparece Big Pickle en `/models` | Elegí otro modelo `-free` o con precio $0 y avisale al docente |
+| Error de límite o de «rate limit» | Esperá un rato o cambiá de modelo con `/models` |
+| Big Pickle da error o no responde | Cambiá a otro modelo gratuito: algunos pueden fallar en ciertos momentos |
+| La interfaz se ve mal en la terminal de Rider | Probá `opencode mini` |
+| OpenCode se comporta raro después de instalar o actualizar | Corré `opencode service restart` y volvé a abrirlo |
+
+**Guía oficial de la versión 2:** https://opencode.ai/v2/docs/
+**Solución de problemas (oficial):** https://opencode.ai/v2/docs/troubleshooting/
 
 ---
 
@@ -452,8 +524,8 @@ Escribanlas con **sus propias palabras y a partir de sus errores**, no copien la
 
 ## A. Preparación antes de clase
 
-- [ ] **OpenCode v2 instalado y conectado en todas las máquinas**, probado el día anterior (`opencode --version` empieza con 2, y una pregunta simple recibe respuesta).
-- [ ] **Proveedor decidido de antemano** (clave institucional u otra opción) y probado desde una máquina de alumno. La guía oficial menciona OpenCode Console y OpenCode Go (suscripción paga) para quienes empiezan.
+- [ ] **OpenCode v2 instalado en todas las máquinas** y **sin restos de la v1**, probado el día anterior (`opencode --version` empieza con 2, y una pregunta simple recibe respuesta con el modelo elegido).
+- [ ] **Big Pickle probado** desde varias máquinas a la vez (ver nota 9) y un **plan B** decidido: otro modelo gratuito de la lista de `/models`, o una clave paga o institucional conectada con `/connect`.
 - [ ] **Repo git** con `.gitignore` de .NET (`bin/`, `obj/`, `.idea/`, `.vs/`), commit inicial limpio y rama `ejercicio-agente`.
 - [ ] **`AGENTS.md` base** (sección B) y **`opencode.jsonc`** (sección C) en la raíz.
 - [ ] **Tests de humo** (ver nota 4).
@@ -535,4 +607,11 @@ La edición de archivos queda permitida por defecto para el agente Build, y el a
 5. **Las reglas `deny` de git son una barrera, no una garantía.** La propia documentación advierte que conviene una lista permitida acotada antes que intentar reconocer todos los comandos peligrosos, y que `shell` corre con la autoridad del usuario. El control real es revisar el diff y commitear a mano. Se puede mencionar en clase.
 6. **`/undo` y el repo.** `/undo` restaura archivos solo dentro de un repositorio git, no cubre archivos ignorados por git ni deshace commits, y puede sobrescribir ediciones recientes de los mismos archivos. Se aclara en el Paso 0 como red de seguridad, no como reemplazo del commit.
 7. **Chequeo de arquitectura.** El práctico usa una búsqueda de texto (`grep` / `Select-String`) para no depender de un test extra. Si querés automatizarlo, es un buen candidato para un test que falle si `LabDTO.Web` menciona `LabDTO.Domain`. Aclaración para la discusión final: como Web referencia a BusinessLogic y esta a Domain, `Usuario` sigue siendo alcanzable desde Web (la referencia es transitiva); lo que lo detecta es el chequeo, no el compilador.
-8. **Tiempo.** Los 60 minutos asumen que OpenCode ya está instalado y conectado. Con instalación en clase, calculá 10 minutos más o pasalo a tarea previa.
+8. **Tiempo.** Los 60 minutos asumen que OpenCode ya está instalado y con el modelo elegido. Con instalación en clase, calculá 10 minutos más o pasalo a tarea previa.
+9. **Modelo gratuito (Big Pickle). Es el punto más frágil del práctico.**
+   - La documentación oficial de la v2 que leí **no menciona Big Pickle ni los modelos gratuitos**. Que vengan incluidos sin registro ni clave sale de guías y artículos de terceros, y no lo pude comprobar en la v2. Probalo en una máquina limpia antes de clase. Si en tu instalación pide iniciar sesión, el camino documentado es `/connect` con una cuenta de OpenCode Console (https://opencode.ai/v2/docs/console/).
+   - Hay reportes recientes en GitHub de usuarios para quienes Big Pickle dejó de responder o dio errores de formato, mientras otros modelos gratuitos (se mencionan DeepSeek V4 Flash Free y Qwen3.6 Plus Free) funcionaban. Tené uno de esos como plan B. La lista de modelos gratuitos cambia seguido: confirmala con `/models` el día anterior.
+   - Según fuentes de terceros, los modelos gratuitos tienen **límites de uso por IP**. Un aula entera detrás de la misma conexión puede chocar con la cuota: probá con varias máquinas al mismo tiempo, y pensá en cuántos grupos habrá consultando a la vez.
+   - Es un modelo gratuito mientras OpenCode junta feedback, por eso la guía le pide al alumno que no pegue claves ni datos personales. Conviene que repitas la advertencia en voz alta.
+   - La calidad de un modelo gratuito puede ser menor que la de uno pago. Los resultados de cada ciclo (y la trampa del Ciclo A) pueden variar respecto de lo descrito.
+10. **Desinstalar la versión 1.** Los nombres de paquete de la tabla (`opencode-ai`, `opencode`, `opencode-bin`) vienen de la documentación de OpenCode; los comandos `uninstall` son los habituales de cada gestor y no los probé. De la documentación de la v2 sale que hay que remover la v1 instalada con gestor de paquetes antes de instalar la v2, que el instalador `curl` de la v2 reemplaza el binario de la v1, y que la v2 lee la misma configuración y migra las credenciales guardadas. Si en tu aula hay muchas máquinas con la v1, conviene resolverlo antes de clase.
