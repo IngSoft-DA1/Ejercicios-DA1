@@ -11,7 +11,7 @@ Algunos incluyen un proyecto listo para abrir con Rider; otros se arman desde ce
 | Blazor: página, inyección de dependencias, Scoped y Singleton | [ejercicioblazor.netlify.app](https://ejercicioblazor.netlify.app/) | No |
 | Blazor: flujo de trabajo con IA | [ejercicioblazor-ia.netlify.app](https://ejercicioblazor-ia.netlify.app/) | No |
 | DTO de Usuarios: capas, DTO y mapper | [ejerciciodto.netlify.app](https://ejerciciodto.netlify.app/) | Sí |
-| EF Code First: DbContext, migraciones y herencia | [ejerrcicioef.netlify.app](https://ejerrcicioef.netlify.app/) | Sí |
+| EF Code First: DbContext, migraciones y herencia | [ejerrcicioef.netlify.app](https://ejercicioef.netlify.app/) | Sí |
 
 ## Cómo leer la letra
 
