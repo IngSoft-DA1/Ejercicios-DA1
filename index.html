@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Ejercicio DTO de Usuarios</title>
+  <title>Ejercicio DTO con agente</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -13,16 +13,18 @@
 <body>
   <!-- ===== ENCABEZADO ===== -->
   <header>
-    <p class="eyebrow">Blazor · Ejercicio guiado · 45 min</p>
-    <h1>Ejercicio <span class="spark">DTO</span> de Usuarios</h1>
-    <p class="lede">Te damos una aplicación Blazor separada en tres capas (Domain, BusinessLogic y Web) que ya funciona: lista usuarios y permite dar de alta nuevos. Tu trabajo es leer el código, encontrar qué está mal en cómo el frontend usa los datos, y corregirlo con un DTO y un mapper.</p>
+    <p class="eyebrow">Blazor · Ejercicio guiado con agente de IA · 60 min</p>
+    <h1>Ejercicio <span class="spark">DTO</span> de Usuarios (con uso de Agente)</h1>
+    <p class="lede">Te damos una aplicación Blazor separada en tres capas (Domain, BusinessLogic y Web) que ya funciona: lista usuarios y permite dar de alta nuevos usuarios. Debés encontrar qué está mal en cómo el frontend usa los datos y corregirlo con un DTO y un mapper, pero esta vez <b>no escribís el código vos</b>: lo dirigís, lo revisás y lo commiteás. El que escribe el código es un agente de IA que corre en la terminal: <b>OpenCode</b>.</p>
     <div class="chips">
-      <span class="chip">análisis de código</span>
+      <span class="chip">agente de consola</span>
+      <span class="chip">plan antes de editar</span>
+      <span class="chip">revisar el diff</span>
+      <span class="chip">commit manual</span>
       <span class="chip">capas</span>
       <span class="chip">entidad de dominio</span>
       <span class="chip">DTO</span>
       <span class="chip">mapper</span>
-      <span class="chip">desacoplar el frontend</span>
       <span class="chip">ocultar la contraseña</span>
     </div>
   </header>
@@ -35,32 +37,135 @@
       <ul>
         <li><span><b>Rider</b> instalado y un navegador.</span></li>
         <li><span>El <b>SDK de .NET 9</b> (con .NET 10 también funciona).</span></li>
-        <li><span>La solución inicial <code class="inl">LabDTO-inicial.zip</code> que te pasa el docente.</span></li>
-        <li><span>Tiempo: <b>45 min</b>, en grupos de 3 o en parejas. Al final el frontend ya no conoce la entidad de dominio: BusinessLogic le entrega DTOs, y un mapper hace la traducción en los dos sentidos.</span></li>
+        <li><span>La solución inicial <code class="inl">LabDTO-agente.zip</code> que te pasa el docente. Ya es un repositorio <b>git</b>, está parada en la rama <code class="inl">ejercicio-agente</code> e incluye dos archivos que vas a leer en el Paso 0: <code class="inl">AGENTS.md</code> y <code class="inl">opencode.jsonc</code>.</span></li>
+        <li><span><b>OpenCode v2</b> (lo instalás en el Paso 0). Para el modelo de IA vamos a usar uno <b>gratuito que trae OpenCode, llamado Big Pickle</b>.</span></li>
+        <li><span>Tiempo: <b>60 min</b>, en grupos de 3 o en parejas.</span></li>
       </ul>
-      <pre data-file="Terminal" data-lang="sh">dotnet --version   # tiene que empezar con 9</pre>
+      <pre data-file="Terminal" data-lang="sh">dotnet --version   # tiene que empezar con 9
+git --version      # cualquier versión</pre>
+    </div>
+
+    <!-- ===== USO DE IA ===== -->
+    <div class="setup">
+      <h2>Uso de IA</h2>
+      <ul>
+        <li><span><b>El agente propone, ustedes deciden.</b> Nada queda sin que alguien del grupo lo haya leído.</span></li>
+        <li><span><b>El commit es siempre a mano, desde Rider.</b> El agente tiene prohibido hacer <code class="inl">git commit</code> (lo vas a ver en su configuración).</span></li>
+        <li><span><b>Cada tarea sigue el mismo ciclo:</b></span></li>
+      </ul>
+      <pre data-file="Ciclo de trabajo" data-lang="txt">PREDECIR  →  PEDIR  →  REVISAR EL DIFF EN RIDER  →  VERIFICAR (build/tests)  →  COMMIT A MANO</pre>
     </div>
 
     <!-- ===== PASO 0 ===== -->
     <section class="step" id="paso-0">
       <div class="num">0</div>
-      <h3>Abrir la solución</h3>
-      <p class="goal">LabDTO.sln · tres proyectos</p>
-      <p>Descomprimí <code class="inl">LabDTO-inicial.zip</code>. En Rider elegí <span class="menu">File → Open</span> y abrí el archivo <code class="inl">LabDTO.sln</code>.</p>
-      <p>En el panel de la izquierda vas a ver tres proyectos, uno por capa. Arriba a la derecha, en la lista de configuraciones de ejecución, elegí <b>LabDTO.Web</b> y dale <kbd>▶ Run</kbd>. La app queda en una dirección fija:</p>
-      <pre data-file="Navegador" data-lang="sh">http://localhost:5080</pre>
+      <div class="head">
+        <h3>Instalar y conectar OpenCode</h3>
+        <span class="tm">5 min</span>
+      </div>
+      <p class="goal">terminal de Rider</p>
+      <p>Abrí LabDTO en Rider y abrí la terminal integrada de Rider (en el panel vertical, por default en el panel izquierdo: <kbd>[&gt;_ ]</kbd>).</p>
+
+      <h4>Antes de instalar: ¿ya tenés OpenCode?</h4>
+      <p>Corré esto:</p>
+      <pre data-file="Terminal" data-lang="sh">opencode --version</pre>
+
+      <h4>Si tenés la versión 1: desinstalala</h4>
+      <p>El comando puede variar si en su momento lo instalaste con otro gestor (npm, Homebrew, scoop, etc.).</p>
+      <pre data-file="Terminal" data-lang="sh"># Desinstalar la v1
+npm uninstall -g opencode-ai
+
+# Instalar la v2 (última versión)
+npm install -g @opencode/cli@latest
+
+# Comprobar la versión
+opencode --version</pre>
       <div class="call check">
         <span class="lbl">Checkpoint</span>
-        En el navegador ves la Home de <b>LabDTO</b>, con un menú lateral que tiene <b>Home</b> y <b>Usuarios</b>. Si Rider no abrió el navegador solo, copiá la dirección en una pestaña nueva.
+        <code class="inl">opencode --version</code> dice <b>opencode v2…</b>
+      </div>
+
+      <h4>Elegir el modelo: Big Pickle</h4>
+      <p>Posicionate en la carpeta de la solución si no lo estás ya y arrancá el agente en la terminal:</p>
+      <pre data-file="Terminal" data-lang="sh">cd [ruta]/LabDTO
+opencode</pre>
+      <p>En la pantalla de OpenCode podés ver en qué modo está el agente, o sea qué permisos sobre los archivos tiene (<b>Build</b> o <b>Plan</b>; <kbd>Shift+Tab</kbd> pasa de uno a otro). Al lado te dice qué modelo de IA estás usando.</p>
+      <p>La ventaja de la interfaz de OpenCode es que podés, según la tarea que quieras hacer, utilizar distintas IAs (Copilot, Claude, Codex, etc.) desde el mismo contexto. OpenCode v2 permite también trabajo de IAs en paralelo.</p>
+      <p>Dentro de OpenCode escribí <code class="inl">/models</code> y elegí <b>Big Pickle</b>. Es un modelo gratuito de OpenCode.</p>
+      <div class="call trap">
+        <span class="lbl">Es gratis, pero con condiciones</span>
+        <ul class="mini">
+          <li>Los modelos gratuitos tienen límites de uso. Si aparece un error de límite, esperá un rato o cambiá de modelo con <code class="inl">/models</code>.</li>
+          <li>Big Pickle es gratis mientras el equipo de OpenCode junta feedback. Por eso <b>no pegues en los pedidos claves, datos personales ni código que no sea de este ejercicio</b>.</li>
+        </ul>
+      </div>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        Cambiás a modo <b>Plan</b> y escribís una pregunta simple, <code class="inl">¿Qué es este proyecto?</code>, y el agente responde.
+      </div>
+      <div class="call hint">
+        <span class="lbl">Comandos útiles en OpenCode</span>
+        <ul class="mini">
+          <li><code class="inl">@</code> adjunta un archivo al pedido: <code class="inl">Explicame @LabDTO.Web/Components/Pages/Usuarios.razor</code>.</li>
+          <li><code class="inl">/btw</code> (by the way) te permite hacer preguntas sobre la sesión mientras el agente está trabajando.</li>
+          <li><code class="inl">/new</code> crea una nueva sesión. Cada tarea distinta que quieras hacer, hacela en una sesión nueva.</li>
+          <li><code class="inl">/sessions</code> te permite cambiar entre sesiones.</li>
+          <li><code class="inl">/init</code> analiza la estructura y los archivos de tu repositorio para crear o actualizar automáticamente el archivo <code class="inl">AGENTS.md</code> (texto markdown con contexto sobre el proyecto, muy útil para el agente).</li>
+          <li>Si la interfaz completa se ve mal en la terminal de Rider, probá <code class="inl">opencode mini</code>, una versión minimalista.</li>
+        </ul>
+      </div>
+
+      <h4>Primer contacto: generar el contexto del agente</h4>
+      <p>Con el agente en modo <b>Build</b> (<kbd>Shift+Tab</kbd> hasta que el indicador lo muestre), ejecutá en la terminal de OpenCode:</p>
+      <pre data-file="OpenCode" data-lang="txt">/init Crea el archivo Agents.md con el contexto del proyecto LabDTO-inicial</pre>
+      <p><code class="inl">/init</code> recorre el repositorio y crea un archivo <code class="inl">AGENTS.md</code> en la raíz de la solución. Esperá a que termine y después pedile:</p>
+      <pre data-file="OpenCode" data-lang="txt">Explicame las tres capas de esta solución y qué proyecto referencia a cuál.</pre>
+      <p>Luego de revisarlo, abrí en Rider (con <span class="menu">File System</span>) el <code class="inl">AGENTS.md</code> que se acaba de generar y léanlo entre todos:</p>
+      <ul class="mini">
+        <li><code class="inl">AGENTS.md</code> es lo que el agente lee al arrancar: la arquitectura y los comandos del proyecto.</li>
+        <li>Fijate qué detectó <code class="inl">/init</code> (estructura de proyectos, comandos de build y test) y si se le escapó algo o lo interpretó mal. Es un borrador generado.</li>
+      </ul>
+      <p>Revisá si puso prohibiciones para git. Si no lo hizo, agregá esto al <code class="inl">AGENTS.md</code>:</p>
+      <pre data-file="AGENTS.md" data-lang="txt">## Reglas de git
+
+Podés consultar el estado del repositorio, pero nunca modificarlo ni publicarlo. Eso lo decide siempre una persona.
+
+### Permitido (solo lectura)
+- `git status`, `git diff`, `git log`, `git show`, `git blame`
+
+### Prohibido
+- **Publicar:** `git push` (con o sin `--force`), `git remote add/set-url/remove`.
+- **Reescribir historia:** `git reset --hard`, `git rebase`, `git commit --amend`.
+- **Borrar trabajo:** `git clean`, `git checkout .`, `git restore .`, `git stash drop/clear`, `git branch -D`, `git tag -d`.
+- **Mover o integrar cambios:** `git merge`, `git cherry-pick`, `git checkout`/`git switch` a otra rama.
+- **Guardar por tu cuenta:** `git add -A`, `git add .` y `git commit`. Si hay cambios listos, avisá y sugerí un mensaje de commit; no lo ejecutes.
+
+### Commits
+- **Nunca ejecutes `git commit`** (tampoco `git commit --amend`) ni `git add`. Los commits los hace siempre una persona, para que el historial y la lista de contribuidores reflejen solo a quienes escriben y revisan el código.
+- No agregues líneas `Co-authored-by` ni ninguna mención al agente en mensajes de commit, ni configures `user.name` / `user.email`.
+- Cuando haya cambios listos, avisá y proponé un mensaje de commit en texto para que la persona lo use.
+
+### Si hace falta algo prohibido
+Frená, explicá qué comando necesitarías y por qué, y esperá confirmación de la persona. No busques alternativas que logren el mismo efecto por otro camino (por ejemplo, borrar archivos con otros comandos para esquivar `git clean`).</pre>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        <code class="inl">/init</code> generó <code class="inl">AGENTS.md</code>, el agente respondió sobre las capas y el grupo sabe contestar: ¿qué dice <code class="inl">AGENTS.md</code>? ¿Qué se le prohíbe al agente?
+      </div>
+      <div class="call think">
+        <span class="lbl">Para pensar</span>
+        Compará el <code class="inl">AGENTS.md</code> generado y la respuesta del agente con el diagrama del Paso 1. ¿Acertaron en todo? ¿Qué corregirían en <code class="inl">AGENTS.md</code> para que el agente no se equivoque la próxima vez? ¿Por qué conviene arrancar un trabajo nuevo en modo Plan?
       </div>
     </section>
 
     <!-- ===== PASO 1 ===== -->
     <section class="step" id="paso-1">
       <div class="num">1</div>
-      <h3>Recorrer la aplicación y el código</h3>
+      <div class="head">
+        <h3>Diagnóstico: primero ustedes, después el agente</h3>
+        <span class="tm">8 min</span>
+      </div>
       <p class="goal">antes de tocar nada, entender qué hay</p>
-      <p>Entrá a <b>Usuarios</b> desde el menú. Mirá la tabla y agregá un usuario con el formulario de abajo.</p>
+      <p>Entrá a <b>Usuarios</b> en la app (con <kbd>▶ Run</kbd> sobre <code class="inl">LabDTO.Web</code> en Rider, queda en <code class="inl">http://localhost:5080</code>), mirá la tabla y agregá un usuario con el formulario.</p>
       <p>La solución está separada en capas. Cada flecha es una referencia entre proyectos: el de la izquierda puede usar las clases del de la derecha.</p>
       <pre data-file="LabDTO.sln" data-lang="sh">LabDTO.Web  ──▶  LabDTO.BusinessLogic  ──▶  LabDTO.Domain
 (frontend)       (lógica de negocio)         (entidades)
@@ -68,138 +173,221 @@
 LabDTO.Domain/Usuario.cs                       la entidad de dominio
 LabDTO.BusinessLogic/UsuarioServicio.cs        lista y agrega usuarios
 LabDTO.Web/Components/Pages/Usuarios.razor     la página que acabás de usar</pre>
-      <p>Abrí esos tres archivos en Rider y leelos con calma. Después respondan estas preguntas. No hace falta que estén seguros: escriban lo que piensan.</p>
+      <p>Abrí esos tres archivos en Rider y leelos. Después hagan esto <b>en este orden</b>:</p>
+      <ol class="mini">
+        <li>Respondan las tres preguntas <b>sin usar el agente</b> y anótenlo en la columna del grupo.</li>
+        <li>Recién ahora, pídanle al agente (en modo Plan) que las responda.</li>
+        <li>Completen las otras dos columnas.</li>
+      </ol>
+      <pre data-file="OpenCode · modo Plan" data-lang="txt">Respondé estas tres preguntas sobre @LabDTO.Web/Components/Pages/Usuarios.razor,
+@LabDTO.BusinessLogic/UsuarioServicio.cs y @LabDTO.Domain/Usuario.cs: ...</pre>
       <div class="wide">
         <table class="log">
           <thead>
-            <tr><th>Pregunta</th><th>Respuesta del grupo</th></tr>
+            <tr><th>Pregunta</th><th>Respuesta del grupo</th><th>Respuesta del agente</th><th>¿Coinciden? ¿Quién tenía razón?</th></tr>
           </thead>
           <tbody>
-            <tr><td>¿Qué datos de cada usuario muestra la página? ¿Alguno no debería verse?</td><td><input type="text" data-k="a1" aria-label="Respuesta 1"></td></tr>
-            <tr><td>En <code class="inl">Usuarios.razor</code>, ¿qué <code class="inl">@using</code> hay arriba? ¿De qué proyecto viene la clase que recorre la tabla?</td><td><input type="text" data-k="a2" aria-label="Respuesta 2"></td></tr>
-            <tr><td>El proyecto Web solo referencia a BusinessLogic. ¿Cómo puede entonces usar una clase de Domain?</td><td><input type="text" data-k="a3" aria-label="Respuesta 3"></td></tr>
-            <tr><td>Cuando agregás un usuario, ¿quién decide su contraseña? ¿En qué capa está esa decisión?</td><td><input type="text" data-k="a4" aria-label="Respuesta 4"></td></tr>
-            <tr><td>Si mañana en <code class="inl">Usuario</code> renombran <code class="inl">Email</code> a <code class="inl">Correo</code>, ¿qué proyectos dejan de compilar?</td><td><input type="text" data-k="a5" aria-label="Respuesta 5"></td></tr>
+            <tr><td>¿Qué datos de cada usuario muestra la página? ¿Alguno no debería verse?</td><td><input type="text" data-k="p1-1g" aria-label="Pregunta 1, respuesta del grupo"></td><td><input type="text" data-k="p1-1a" aria-label="Pregunta 1, respuesta del agente"></td><td><input type="text" data-k="p1-1c" aria-label="Pregunta 1, comparación"></td></tr>
+            <tr><td>El proyecto Web solo referencia a BusinessLogic. ¿Cómo puede entonces usar una clase de Domain?</td><td><input type="text" data-k="p1-2g" aria-label="Pregunta 2, respuesta del grupo"></td><td><input type="text" data-k="p1-2a" aria-label="Pregunta 2, respuesta del agente"></td><td><input type="text" data-k="p1-2c" aria-label="Pregunta 2, comparación"></td></tr>
+            <tr><td>Cuando agregás un usuario, ¿quién decide su contraseña? ¿En qué capa está esa decisión?</td><td><input type="text" data-k="p1-3g" aria-label="Pregunta 3, respuesta del grupo"></td><td><input type="text" data-k="p1-3a" aria-label="Pregunta 3, respuesta del agente"></td><td><input type="text" data-k="p1-3c" aria-label="Pregunta 3, comparación"></td></tr>
           </tbody>
         </table>
       </div>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        Las tres filas están completas y el grupo puede explicar por qué, si en <code class="inl">Usuario</code> renombran <code class="inl">Email</code> a <code class="inl">Correo</code>, también deja de compilar el frontend.
+      </div>
       <div class="call think">
         <span class="lbl">Para pensar</span>
-        La solución está separada en capas, pero la página trabaja directo con la entidad de dominio. ¿Para qué sirve separar en proyectos si el frontend termina conociendo todo igual?
+        La solución está separada en capas, pero la página trabaja directo con la entidad de dominio. ¿Para qué sirve separar en proyectos si el frontend termina conociendo todo igual? Si el agente coincidió con ustedes en todo, ¿seguirían revisando su trabajo?
       </div>
     </section>
 
     <!-- ===== PASO 2 ===== -->
     <section class="step" id="paso-2">
       <div class="num">2</div>
-      <h3>Crear el DTO</h3>
-      <p class="goal">en BusinessLogic, con solo lo que el frontend necesita</p>
-      <p>Click derecho sobre el proyecto <code class="inl">LabDTO.BusinessLogic</code> → <span class="menu">Add → Directory</span>, nombre <code class="inl">Dtos</code>. Dentro de esa carpeta, <span class="menu">Add → Class/Interface</span>, nombre <code class="inl">UsuarioDto</code>. Reemplazá el contenido por esto y resolvé el <b>TODO 1</b>:</p>
-      <pre data-file="LabDTO.BusinessLogic/Dtos/UsuarioDto.cs" data-lang="cs">namespace LabDTO.BusinessLogic.Dtos;
-
-// TODO 1: agregá las propiedades que el frontend necesita.
-// Usá las respuestas del paso 1 para decidir qué entra y qué queda afuera.
-public class UsuarioDto
-{
-}</pre>
-      <div class="call hint">
-        <span class="lbl">Pista</span>
-        Un DTO (Data Transfer Object) es una clase sin lógica: solo propiedades, pensada para llevar datos de una capa a otra. No hereda de la entidad ni la referencia: es una clase aparte, con las propiedades que vos elijas.
-        <br><br>
-        En este ejercicio lo vamos a usar como el «formato de intercambio» entre BusinessLogic y Web: el servicio va a entregar y recibir DTOs, y la entidad <code class="inl">Usuario</code> se queda adentro de BusinessLogic. Eso nos sirve para dos cosas:
-        <br><br>
-        <b>Desacoplar capas.</b> El frontend depende solo del DTO, no de cómo está armada la entidad de dominio. Si mañana la entidad cambia (se renombra una propiedad, se agrega un campo interno), alcanza con ajustar la traducción en BusinessLogic: la página no se entera.
-        <br><br>
-        <b>Ocultar información.</b> El DTO lleva solo lo que la otra capa necesita. Un dato que no está en el DTO no llega al frontend, ni por error: no hay forma de mostrarlo porque no existe en la clase que recibe la página.
+      <div class="head">
+        <h3>Plan antes de código</h3>
+        <span class="tm">7 min</span>
       </div>
-      <pre data-file="Terminal" data-lang="sh">dotnet build   # tiene que terminar en "Build succeeded."</pre>
+      <p class="goal">cambiar al agente Plan, revisar, corregir, y recién ahí aprobar</p>
+      <p>Antes de pedir nada, dos conceptos. Los necesitan para juzgar si el plan del agente tiene sentido.</p>
+      <div class="call hint">
+        <span class="lbl">Qué es un DTO</span>
+        Un DTO (Data Transfer Object) es una clase sin lógica: solo propiedades (string, int, etc.), pensada para llevar datos de una capa a otra. No hereda de la entidad ni la referencia: es una clase aparte, con las propiedades que elijas.
+        <br><br>
+        En este ejercicio es el «formato de intercambio» entre BusinessLogic y Web: el servicio entrega DTOs y recibe DTOs, y la entidad <code class="inl">Usuario</code> se queda solamente referenciada en BusinessLogic. Eso sirve para dos cosas:
+        <br><br>
+        <b>Desacoplar capas.</b> El frontend depende solo del DTO. Si la entidad cambia, alcanza con ajustar la traducción en BusinessLogic.
+        <br><br>
+        <b>Ocultar información.</b> Un dato que no está explícito en el DTO no llega al frontend.
+      </div>
+      <div class="call hint">
+        <span class="lbl">Qué es un mapper</span>
+        Alguien tiene que traducir los datos entre la entidad <code class="inl">Usuario</code> y el <code class="inl">UsuarioDto</code>, en ambos sentidos. Esa responsabilidad no es del DTO ni de la página. Por eso va en una clase aparte dedicada solo a eso: el <b>mapper</b>. La traducción queda en un único lugar, en la única capa que conoce las dos clases: BusinessLogic.
+      </div>
+      <p>Con el agente en <b>Plan</b>, pidan:</p>
+      <pre data-file="OpenCode · modo Plan" data-lang="txt">Quiero que el frontend deje de usar la entidad Usuario. Proponé un plan con
+DTO y mapper, sin editar nada. Decime qué archivos vas a crear o tocar.</pre>
+      <p>Revisen el plan con esta lista antes de aprobarlo:</p>
+      <div class="wide">
+        <table class="log">
+          <thead>
+            <tr><th>Pregunta sobre el plan</th><th>¿Cierra?</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>¿Qué propiedades pone en el DTO? ¿Está la contraseña?</td><td><input type="text" data-k="p2-1" aria-label="Plan, propiedades del DTO"></td></tr>
+            <tr><td>¿En qué proyecto y carpeta pone el DTO y el mapper? ¿Es la capa correcta?</td><td><input type="text" data-k="p2-2" aria-label="Plan, ubicación"></td></tr>
+            <tr><td>¿El mapper se encarga de las dos direcciones (entidad → DTO y DTO → entidad)?</td><td><input type="text" data-k="p2-3" aria-label="Plan, direcciones del mapper"></td></tr>
+            <tr><td>¿Dice quién va a decidir la contraseña de los usuarios nuevos?</td><td><input type="text" data-k="p2-4" aria-label="Plan, contraseña"></td></tr>
+            <tr><td>¿Qué archivos toca? ¿Alguno que no debería?</td><td><input type="text" data-k="p2-5" aria-label="Plan, archivos tocados"></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Si algo no cierra, díganselo al agente y que ajuste el plan.</p>
       <div class="call check">
         <span class="lbl">Checkpoint</span>
-        Compila sin errores. Tu DTO tiene lo que la tabla y el formulario necesitan, y la contraseña quedó afuera.
+        Tienen solamente el plan que el grupo entiende y aprueba, y anotaron al menos una cosa que corrigieron o que el agente hizo bien sin que se la pidieran.
       </div>
     </section>
 
     <!-- ===== PASO 3 ===== -->
     <section class="step" id="paso-3">
       <div class="num">3</div>
-      <h3>Crear el mapper</h3>
-      <p class="goal">traducir entidad ⇄ DTO, a mano</p>
-      <p>Ahora tenemos dos clases que representan a un usuario: la entidad <code class="inl">Usuario</code>, que usa BusinessLogic por dentro, y el <code class="inl">UsuarioDto</code>, que es lo que viaja hacia el frontend. Alguien tiene que encargarse de pasar los datos de una a la otra, en los dos sentidos: de entidad a DTO cuando el servicio entrega usuarios, y de DTO a entidad cuando recibe uno nuevo.</p>
-      <p>Esa responsabilidad no le corresponde al DTO. Como vimos, el DTO es solo un contenedor de datos, sin lógica: si le agregáramos métodos para convertirse, tendría que conocer la entidad de dominio, y eso es justo lo que queremos evitar. Tampoco le corresponde a la página, que no debería saber que la entidad existe. Por eso la ponemos en una clase aparte, dedicada solo a eso: el <b>mapper</b>. Así toda la traducción entre las dos clases queda en un único lugar.</p>
-      <p>En <code class="inl">LabDTO.BusinessLogic</code> creá la carpeta <code class="inl">Mappers</code> y adentro la clase <code class="inl">UsuarioMapper</code>. Reemplazá el contenido por esto y resolvé los <b>TODO 2</b> y <b>3</b>:</p>
-      <pre data-file="LabDTO.BusinessLogic/Mappers/UsuarioMapper.cs" data-lang="cs">using LabDTO.BusinessLogic.Dtos;
-using LabDTO.Domain;
-
-namespace LabDTO.BusinessLogic.Mappers;
-
-public static class UsuarioMapper
-{
-    public static UsuarioDto ToDto(Usuario usuario)
-    {
-        // TODO 2: devolvé un UsuarioDto con los datos de "usuario"
-    }
-
-    public static Usuario ToEntity(UsuarioDto dto)
-    {
-        // TODO 3: devolvé un Usuario armado con los datos de "dto".
-        // El DTO no trae contraseña: buscá en el código actual qué contraseña
-        // reciben los usuarios nuevos y mové esa decisión acá.
-    }
-}</pre>
-      <div class="call hint">
-        <span class="lbl">Pista</span>
-        Para armar un objeto nuevo copiando datos de otro se usa un object initializer: <code class="inl">new Tipo { Propiedad = origen.Propiedad, ... }</code>. Los métodos de una clase <code class="inl">static</code> se llaman con el nombre de la clase, sin crear una instancia.
+      <div class="head">
+        <h3>Ejecución en tres ciclos</h3>
+        <span class="tm">30 min</span>
       </div>
-      <pre data-file="Terminal" data-lang="sh">dotnet build   # tiene que terminar en "Build succeeded."</pre>
+      <p class="goal">cada ciclo: predecir → pedir → revisar el diff → verificar → commit a mano</p>
+
+      <h4>Cómo revisar el diff y commitear en Rider</h4>
+      <ul class="mini">
+        <li><b>Ver los cambios:</b> abrí <span class="menu">Git → Commit</span> (<kbd>-o-</kbd> en el panel vertical). A la izquierda aparecen los archivos modificados; hacé doble clic en cada uno para ver el diff (lo viejo contra lo nuevo).</li>
+        <li><b>Commitear:</b> tildá los archivos que quieras incluir, escribí <b>un mensaje propio</b> que diga qué cambió y por qué, y apretá <kbd>Commit</kbd>.</li>
+        <li><b>Chequeo previo:</b> en la barra de estado de Rider tiene que decir <code class="inl">ejercicio-agente</code>, no <code class="inl">main</code>.</li>
+      </ul>
+      <div class="call hint">
+        <span class="lbl">Escribir buenos pedidos</span>
+        Un pedido útil tiene tres partes:
+        <ul class="mini">
+          <li><b>Objetivo:</b> qué quiero lograr.</li>
+          <li><b>Restricciones:</b> qué no se puede hacer o tocar.</li>
+          <li><b>Criterio de aceptación:</b> cómo sé que terminó bien (un comando que corre, algo que no debe aparecer).</li>
+        </ul>
+        Un pedido corto como «hacé un DTO» deja todas las decisiones en manos del agente. A veces las acierta, pero no hay forma de saberlo sin leer el diff.
+      </div>
+
+      <h4>Ciclo A. DTO + mapper <span class="tm">12 min</span></h4>
+      <p><strong>Predecir.</strong> Anotá: ¿qué propiedades creen que va a poner el agente en el DTO? ¿En qué carpeta va a poner el mapper?</p>
+      <input type="text" data-k="p3a-pred" aria-label="Ciclo A, predicción" placeholder="Predicción del grupo">
+      <p><strong>Pedir.</strong> Armen el prompt con la información brindada, modo <b>Build</b>, <kbd>Enter</kbd>.</p>
+      <p><strong>Revisar el diff.</strong> Lean los archivos nuevos en Rider con esta lista:</p>
+      <div class="wide">
+        <table class="log">
+          <thead>
+            <tr><th>¿Qué miro?</th><th>Cómo tiene que estar</th><th>¿Está bien?</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Propiedades del <code class="inl">UsuarioDto</code></td><td>Solo lo que necesitan la tabla y el formulario. <b>Sin contraseña.</b></td><td><input type="text" data-k="p3a-1" aria-label="Propiedades del DTO"></td></tr>
+            <tr><td>Referencias del DTO</td><td>No hereda de <code class="inl">Usuario</code> ni usa nada de <code class="inl">LabDTO.Domain</code></td><td><input type="text" data-k="p3a-2" aria-label="Referencias del DTO"></td></tr>
+            <tr><td>Lógica en el DTO</td><td>Ninguna: solo propiedades</td><td><input type="text" data-k="p3a-3" aria-label="Lógica en el DTO"></td></tr>
+            <tr><td>Ubicación del mapper</td><td><code class="inl">LabDTO.BusinessLogic/Mappers</code></td><td><input type="text" data-k="p3a-4" aria-label="Ubicación del mapper"></td></tr>
+            <tr><td>Sentidos del mapper</td><td><code class="inl">ToDto(Usuario)</code> y <code class="inl">ToEntity(UsuarioDto)</code></td><td><input type="text" data-k="p3a-5" aria-label="Sentidos del mapper"></td></tr>
+            <tr><td>Contraseña de los usuarios nuevos</td><td>La decide <code class="inl">ToEntity</code>, usando la misma que hoy asigna la página</td><td><input type="text" data-k="p3a-6" aria-label="Contraseña de los usuarios nuevos"></td></tr>
+            <tr><td>Archivos tocados</td><td>Solo en BusinessLogic: la página todavía no se toca</td><td><input type="text" data-k="p3a-7" aria-label="Archivos tocados"></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Si hay algo mal</strong>, no lo arreglen a mano: pídanselo con un pedido preciso (objetivo, restricciones, criterio de aceptación). Por ejemplo:</p>
+      <pre data-file="OpenCode · modo Build" data-lang="txt">Corregí UsuarioDto y UsuarioMapper.
+Objetivo: el DTO lleva solo Id, Nombre y Email; el mapper convierte en los dos sentidos.
+Restricciones: el DTO no tiene contraseña, no referencia LabDTO.Domain y no tiene
+lógica; el mapper va en LabDTO.BusinessLogic/Mappers; no toques LabDTO.Web.
+La contraseña que hoy asigna la página a los usuarios nuevos pasa a decidirse en ToEntity.
+Criterio de aceptación: "dotnet build LabDTO.BusinessLogic" compila sin errores.</pre>
+      <p><strong>Verificar y commitear</strong>, seleccionando únicamente el archivo verificado. Commit a mano desde Rider.</p>
       <div class="call check">
         <span class="lbl">Checkpoint</span>
-        Compila sin errores. El mapper vive en BusinessLogic, que es la única capa que conoce las dos clases: <code class="inl">Usuario</code> y <code class="inl">UsuarioDto</code>.
+        Compila. El DTO no tiene contraseña, el mapper vive en BusinessLogic y hay un commit hecho por ustedes. El escribano anotó <b>qué decidió mal el agente con el pedido corto</b> (o que no se equivocó, y cómo lo comprobaron).
+      </div>
+
+      <h4>Ciclo B. El servicio habla en DTOs <span class="tm">8 min</span></h4>
+      <p><strong>Predecir.</strong> Escriban antes de correr nada: <i>si el servicio pasa a devolver y recibir DTOs, ¿qué proyecto va a dejar de compilar y en qué lugares?</i></p>
+      <input type="text" data-k="p3b-pred" aria-label="Ciclo B, predicción" placeholder="Predicción del grupo">
+      <p><strong>Pedir.</strong> Armen el prompt con la información brindada, modo <b>Build</b>, <kbd>Enter</kbd>.</p>
+      <p><strong>Revisar y verificar.</strong> Leé el diff de <code class="inl">UsuarioServicio.cs</code> y comparen con la predicción. ¿El agente ya había hecho estos cambios con el pedido anterior?</p>
+      <p>Commit a mano.</p>
+
+      <h4>Ciclo C. Blazor con DTOs <span class="tm">10 min</span></h4>
+      <p><strong>Predecir.</strong> ¿Qué cambios va a tener que hacer el agente en <code class="inl">Usuarios.razor</code>? Anótenlos en una lista.</p>
+      <input type="text" data-k="p3c-pred" aria-label="Ciclo C, predicción" placeholder="Predicción del grupo">
+      <p><strong>Pedir.</strong> Armen el prompt con la información brindada, modo <b>Build</b>, <kbd>Enter</kbd>.</p>
+      <p><strong>Revisar el diff y verificar.</strong></p>
+      <div class="wide">
+        <table class="log">
+          <thead>
+            <tr><th>¿Qué miro?</th><th>Cómo tiene que estar</th><th>¿Está bien?</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="inl">@using</code> de la página</td><td>El de la carpeta de DTOs, no el de Domain</td><td><input type="text" data-k="p3c-1" aria-label="using de la página"></td></tr>
+            <tr><td>Tabla</td><td>Id, Nombre y Email; sin contraseña</td><td><input type="text" data-k="p3c-2" aria-label="Tabla"></td></tr>
+            <tr><td>Alta</td><td>Arma un <code class="inl">UsuarioDto</code>; no asigna contraseña</td><td><input type="text" data-k="p3c-3" aria-label="Alta"></td></tr>
+            <tr><td>Mapper en la página</td><td>No aparece</td><td><input type="text" data-k="p3c-4" aria-label="Mapper en la página"></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Después <kbd>■ Stop</kbd> y <kbd>▶ Run</kbd> sobre <code class="inl">LabDTO.Web</code>, y prueben listar y dar de alta un usuario.</p>
+      <p>Commit a mano. ¿El agente ya lo había modificado?</p>
+      <div class="call check">
+        <span class="lbl">Checkpoint</span>
+        La solución compila entera, la tabla muestra Id, Nombre y Email, el alta funciona y hay tres commits hechos por ustedes (uno por ciclo).
       </div>
     </section>
 
     <!-- ===== PASO 4 ===== -->
     <section class="step" id="paso-4">
       <div class="num">4</div>
-      <h3>El servicio habla en DTOs</h3>
-      <p class="goal">BusinessLogic deja de entregar la entidad</p>
-      <p>Abrí <code class="inl">UsuarioServicio.cs</code>. Por dentro el servicio sigue guardando entidades <code class="inl">Usuario</code>, pero hacia afuera tiene que entregar y recibir DTOs.</p>
-      <ul class="mini">
-        <li><b>TODO 4:</b> que <code class="inl">Listar()</code> devuelva una lista de <code class="inl">UsuarioDto</code>, convirtiendo cada usuario con el mapper.</li>
-        <li><b>TODO 5:</b> que <code class="inl">Agregar(...)</code> reciba un <code class="inl">UsuarioDto</code> y lo convierta a entidad antes de guardarlo.</li>
-      </ul>
-      <div class="call hint">
-        <span class="lbl">Pista</span>
-        <code class="inl">.Select(...)</code> transforma cada elemento de una lista en otra cosa: le podés pasar directamente un método que reciba un elemento y devuelva el nuevo. Para que el resultado sea una lista, terminá con <code class="inl">.ToList()</code>.
+      <div class="head">
+        <h3>Cierre y verificación</h3>
+        <span class="tm">10 min</span>
       </div>
-      <pre data-file="Terminal" data-lang="sh">dotnet build</pre>
-      <div class="call check">
-        <span class="lbl">Checkpoint</span>
-        <code class="inl">LabDTO.BusinessLogic</code> compila, pero <code class="inl">LabDTO.Web</code> <b>no</b>: la página falla en los lugares donde usaba la entidad. Leé los errores antes de seguir.
-      </div>
-      <div class="call think">
-        <span class="lbl">Para pensar</span>
-        Los errores de compilación de la página te están mostrando exactamente de qué dependía el frontend. ¿Cuáles de esas dependencias eran necesarias y cuáles no?
-      </div>
-    </section>
+      <p class="goal">arquitectura, navegador y reglas para el agente</p>
 
-    <!-- ===== PASO 5 ===== -->
-    <section class="step" id="paso-5">
-      <div class="num">5</div>
-      <h3>Arreglar la página</h3>
-      <p class="goal">el frontend deja de conocer el dominio</p>
-      <p>Abrí <code class="inl">Usuarios.razor</code>. <b>TODO 6:</b> hacé que compile de nuevo trabajando con <code class="inl">UsuarioDto</code>: la tabla sin columna de contraseña, y el alta armando un DTO en vez de una entidad. La página no tiene que decidir ninguna contraseña.</p>
-      <div class="call hint">
-        <span class="lbl">Pista</span>
-        Cambiá el <code class="inl">@using</code> del dominio por el de la carpeta de DTOs. La página ya no necesita el mapper: la conversión ahora la hace el servicio.
-      </div>
-      <p>Antes de terminar, probá escribir <code class="inl">@u.Password</code> en alguna celda de la tabla y mirá qué marca Rider. Después sacalo. <kbd>■ Stop</kbd> y <kbd>▶ Run</kbd> para probar la página.</p>
+      <h4>4.1 Chequeo de arquitectura <span class="tm">2 min</span></h4>
+      <p>Buscá en el proyecto Web (a mano o con el agente en modo Plan) cualquier mención del dominio. <b>No tiene que aparecer nada.</b></p>
+      <p>Si encuentran algo, pídanle al agente que lo corrija (con un pedido preciso) y vuelvan a commitear.</p>
+      <p>Antes de terminar, probá escribir <code class="inl">@u.Password</code> en alguna celda de la tabla y mirá qué marca Rider. Después sacalo <b>sin commitear</b>.</p>
+
+      <h4>4.2 Prueba en el navegador <span class="tm">3 min</span></h4>
+      <p>Con la app corriendo, listen y agreguen un usuario. La contraseña no tiene que verse en ningún lado.</p>
+
+      <h4>4.3 Tres reglas para el agente <span class="tm">5 min</span></h4>
+      <p>Hoy el agente solo conocía la arquitectura y los comandos; no sabía qué es un DTO ni dónde va cada cosa en este proyecto. Con lo que tuvieron que corregir, pídanle al agente que actualice <code class="inl">AGENTS.md</code> con <b>tres reglas</b> para que el próximo pedido no tenga esos errores. Por ejemplo:</p>
+      <pre data-file="AGENTS.md" data-lang="txt">- Las entidades de Domain no salen de BusinessLogic: los servicios reciben y devuelven DTOs.
+- Un DTO es una clase sin lógica ni referencias a Domain, y no incluye contraseñas.</pre>
+      <p>Hagan un último commit a mano.</p>
       <div class="call check">
-        <span class="lbl">Checkpoint</span>
-        La solución compila entera. La tabla muestra Id, Nombre y Email, el alta funciona, y <code class="inl">Usuarios.razor</code> ya no tiene <code class="inl">@using LabDTO.Domain</code> ni nombra la entidad <code class="inl">Usuario</code> en ningún lado.
+        <span class="lbl">Checkpoint final</span>
+        El chequeo de arquitectura no encuentra nada, la app funciona y <code class="inl">AGENTS.md</code> tiene tres reglas nuevas, escritas por ustedes, con su commit.
       </div>
       <div class="call think">
         <span class="lbl">Para pensar</span>
-        Volvé a la última pregunta del paso 1: si ahora renombran <code class="inl">Email</code> a <code class="inl">Correo</code> en <code class="inl">Usuario</code>, ¿qué proyectos dejan de compilar? Y otra: borraste el <code class="inl">@using</code>, pero Web sigue referenciando a BusinessLogic, que referencia a Domain. ¿Qué le impide a alguien volver a usar <code class="inl">Usuario</code> en la página?
+        <ul class="mini">
+          <li>Si ahora renombran <code class="inl">Email</code> a <code class="inl">Correo</code> en <code class="inl">Usuario</code>, ¿qué proyectos dejan de compilar? ¿Y la página?</li>
+          <li>Borraste el <code class="inl">@using</code>, pero Web sigue referenciando a BusinessLogic, que referencia a Domain. ¿Qué le impide a alguien (o a un agente) volver a usar <code class="inl">Usuario</code> en la página? ¿Qué cosa lo detecta?</li>
+          <li>¿Qué habría pasado si commiteaban sin leer el diff?</li>
+        </ul>
+      </div>
+
+      <h4>Registro del grupo</h4>
+      <div class="wide">
+        <table class="log">
+          <tbody>
+            <tr><td>¿Qué hizo bien el agente sin que se lo pidieran?</td><td><input type="text" data-k="reg-1" aria-label="Qué hizo bien el agente"></td></tr>
+            <tr><td>¿Qué tuvieron que corregir? ¿Cómo lo detectaron?</td><td><input type="text" data-k="reg-2" aria-label="Qué tuvieron que corregir"></td></tr>
+            <tr><td>Reglas que agregaron a <code class="inl">AGENTS.md</code></td><td><input type="text" data-k="reg-3" aria-label="Reglas agregadas"></td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -208,18 +396,21 @@ public static class UsuarioMapper
   <!-- ===== VUELTA EXTRA ===== -->
   <div class="wrap">
     <div class="challenge">
-      <h2>🏁 Vuelta extra (opcional)</h2>
-      <p class="goal">para los que terminaron antes</p>
+      <h2>🏁 Vuelta extra (de tarea)</h2>
+      <p class="goal">para los que quieran seguir</p>
       <ul>
-        <li>¿Tiene sentido que el formulario de alta use un DTO con <code class="inl">Id</code>, si el Id lo pone el servicio? Creá un <code class="inl">UsuarioAltaDto</code> solo con lo que se carga en el formulario, y su método en el mapper.</li>
-        <li>Agregá una página <i>Directorio</i> que muestre solo los nombres, con su propio DTO y su opción en el menú.</li>
+        <li><b>Investigá otro agente.</b> Cada día salen nuevos agentes: investigá qué otros agentes podrías utilizar.</li>
       </ul>
+      <div class="call hint">
+        <span class="lbl">Ojo con los archivos de contexto</span>
+        Hasta donde sabemos, Claude Code lee <code class="inl">CLAUDE.md</code> y Codex lee <code class="inl">AGENTS.md</code>; OpenCode v2 lee solamente <code class="inl">AGENTS.md</code>. Verificalo en la documentación de cada uno, porque estas herramientas cambian rápido.
+      </div>
     </div>
 
     <!-- ===== PIE ===== -->
     <footer>
       <div class="rule"></div>
-      Capas, entidad de dominio y DTO · mapper a mano · Blazor con Rider y .NET 9. Ejercicio guiado de 45 minutos.
+      Capas, entidad de dominio, DTO y mapper a mano · trabajo con agente de consola (OpenCode v2) · Blazor con Rider y .NET 9. Ejercicio guiado de 60 minutos.
       <br><button id="clear" type="button">Borrar las respuestas de este navegador</button>
     </footer>
   </div>

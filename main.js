@@ -1,6 +1,6 @@
 /*
  * Comportamiento de la página. Sin dependencias.
- *  1) Los bloques de código son <pre data-file="..." data-lang="cs|sh"> en el HTML:
+ *  1) Los bloques de código son <pre data-file="..." data-lang="cs|sh|txt"> en el HTML:
  *     acá se les pone la cabecera con el nombre del archivo y se colorea el código.
  *  2) Lo que escriben en la bitácora (inputs con data-k) queda guardado en el navegador.
  */
@@ -55,7 +55,7 @@
     file.textContent = pre.getAttribute('data-file');
     bar.appendChild(file);
 
-    pre.innerHTML = lang === 'sh' ? highlightSh(text) : highlightCs(text);
+    pre.innerHTML = lang === 'sh' ? highlightSh(text) : lang === 'txt' ? esc(text) : highlightCs(text);
     pre.parentNode.insertBefore(box, pre);
     box.appendChild(bar);
     box.appendChild(pre);
@@ -63,7 +63,7 @@
 
   /* ---------- 2) Bitácora ---------- */
 
-  var KEY = 'ejercicio-dto-usuarios';
+  var KEY = 'ejercicio-dto-agente';
   var store = {};
   try { store = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { store = {}; }
 
