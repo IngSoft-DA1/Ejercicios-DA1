@@ -14,7 +14,7 @@
 
   <!-- ===== ENCABEZADO ===== -->
   <header>
-    <p class="eyebrow">Blazor · Laboratorio cronometrado · 45 min</p>
+    <p class="eyebrow">Blazor · Laboratorio</p>
     <h1>Ejercicio <span class="spark">Tareas</span> en Blazor</h1>
     <p class="lede">Vas a armar tu primera página en Blazor con Rider: una lista de tareas que agrega, edita y quita a través de un servicio inyectado. Después abrís dos pestañas, cambiás <b>una sola palabra</b> en <code class="inl">Program.cs</code> y mirás qué pasa con los datos.</p>
     <div class="chips">
@@ -34,8 +34,7 @@
       <h2>Antes de arrancar</h2>
       <ul>
         <li><span><b>Rider</b> instalado (cualquier versión reciente) y un navegador.</span></li>
-        <li><span>El <b>SDK de .NET 9</b>. Con .NET 10 también funciona; con .NET 8 no, porque usamos <code class="inl">RendererInfo</code>, que apareció en .NET 9.</span></li>
-        <li><span>Tiempo: <b>45 min</b>, en grupos de 3 o en parejas. Al final tenés una lista de tareas que agrega, edita y quita, con su propia opción en el menú, y sabés qué pasa con sus datos según el tipo de servicio que registres.</span></li>
+        <li><span>El <b>SDK de .NET 9</b>. Con .NET 10 también funciona</li>
       </ul>
       <pre data-file="Terminal" data-lang="sh">
 dotnet --version   # tiene que empezar con 9</pre>
@@ -161,7 +160,7 @@ dotnet build   # tiene que terminar en "Build succeeded."</pre>
         <h3>Registrar, inyectar y conectar</h3>
         <p class="goal">Program.cs + @inject + CRUD en pantalla</p>
         <div class="call trap">
-          <span class="lbl">Regla de oro</span>Cada vez que toques <code class="inl">Program.cs</code>: <kbd>■ Stop</kbd> y después <kbd>▶ Run</kbd>. Con la app corriendo el cambio parece guardado, pero <b>no se aplica</b>: sigue funcionando la versión vieja y no da ningún error. Rider tiene una opción para que los cambios se actualicen sin reiniciar (se llama <em>Hot Reload</em>), pero buscarla queda por cuenta de cada uno. En este ejercicio, siempre Stop y Run.
+          <span class="lbl">Regla de oro</span>Cada vez que toques <code class="inl">Program.cs</code>: <kbd>■ Stop</kbd> y después <kbd>▶ Run</kbd>. Con la app corriendo el cambio parece guardado, pero <b>no se aplica</b>: sigue funcionando la versión vieja y no da ningún error. Rider tiene una opción para que los cambios se actualicen sin reiniciar (se llama <em>Hot Reload</em>), pero buscarla queda por cuenta de cada uno.
         </div>
         <p><strong>3A · Registrar el servicio.</strong> <code class="inl">Program.cs</code> es el archivo donde se configuran los servicios de la aplicación: ahí le decimos al <b>contenedor de inyección de dependencias</b> qué servicios existen y con qué «vida» (Scoped o Singleton). Después, cada página los pide con <code class="inl">@inject</code>, que es lo que vas a hacer en 3B.</p>
         <p>Abrí <code class="inl">Program.cs</code> y completá el TODO 2. El contenedor se arma en <code class="inl">Build()</code>, así que la línea tiene que quedar antes:</p>
@@ -388,7 +387,6 @@ builder.Services.AddScoped&lt;TareaServicio&gt;();</pre>
     <!-- ===== VUELTA EXTRA ===== -->
     <div class="challenge">
       <h2>🏁 Vuelta extra (opcional)</h2>
-      <p class="goal">para los que terminaron antes</p>
       <ul>
         <li>Sumá una property <code class="inl">bool Hecha</code> a <code class="inl">Tarea</code> y un botón para marcarla como hecha.</li>
       </ul>

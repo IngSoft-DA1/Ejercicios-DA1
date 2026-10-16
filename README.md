@@ -1,6 +1,6 @@
 # Ejercicio Tareas en Blazor
 
-Ejercicio guiado de 45 minutos para aprender inyección de dependencias en Blazor y ver la
+Ejercicio guiado para aprender inyección de dependencias en Blazor y ver la
 diferencia entre un servicio `Scoped` y uno `Singleton`.
 
 ## De qué trata
@@ -41,7 +41,7 @@ pestañas del navegador abiertas en la misma página, cambian **una sola palabra
 Con el servicio `Scoped`, cada pestaña del navegador trabaja con su propia lista y un `F5` la
 vacía. Con el servicio `Singleton`, todas las pestañas comparten la misma lista mientras la
 aplicación siga corriendo. El código de la página es el mismo en los dos casos: lo único que
-cambia es una palabra en `Program.cs`.
+cambia es una palabra en `Program.cs`, se busca entender el concepto de los distintos ciclos de vida posibles para utilizar en las paginas de blazor.
 
 ## Conceptos que cubre
 
