@@ -7,13 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="styles.css">
-  <script src="main.js" defer></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/main.js" defer></script>
 </head>
 <body>
   <!-- ===== ENCABEZADO ===== -->
   <header>
-    <p class="eyebrow">Blazor · Ejercicio guiado · 45 min</p>
+    <p class="eyebrow">Blazor · Ejercicio guiado</p>
     <h1>Ejercicio <span class="spark">DTO</span> de Usuarios</h1>
     <p class="lede">Te damos una aplicación Blazor separada en tres capas (Domain, BusinessLogic y Web) que ya funciona: lista usuarios y permite dar de alta nuevos. Tu trabajo es leer el código, encontrar qué está mal en cómo el frontend usa los datos, y corregirlo con un DTO y un mapper.</p>
     <div class="chips">
@@ -35,8 +35,8 @@
       <ul>
         <li><span><b>Rider</b> instalado y un navegador.</span></li>
         <li><span>El <b>SDK de .NET 9</b> (con .NET 10 también funciona).</span></li>
-        <li><span>La solución inicial <code class="inl">LabDTO-inicial.zip</code> que te pasa el docente.</span></li>
-        <li><span>Tiempo: <b>45 min</b>, en grupos de 3 o en parejas. Al final el frontend ya no conoce la entidad de dominio: BusinessLogic le entrega DTOs, y un mapper hace la traducción en los dos sentidos.</span></li>
+        <li><span>La solución inicial <code class="inl">LabDTO-inicial.zip</code></span></li>
+        <li><span>Al final el frontend ya no conoce la entidad de dominio: BusinessLogic le entrega DTOs, y un mapper hace la traducción en los dos sentidos.</span></li>
       </ul>
       <pre data-file="Terminal" data-lang="sh">dotnet --version   # tiene que empezar con 9</pre>
     </div>
@@ -104,7 +104,7 @@ public class UsuarioDto
 }</pre>
       <div class="call hint">
         <span class="lbl">Pista</span>
-        Un DTO (Data Transfer Object) es una clase sin lógica: solo propiedades, pensada para llevar datos de una capa a otra. No hereda de la entidad ni la referencia: es una clase aparte, con las propiedades que vos elijas.
+        Un DTO (Data Transfer Object) es una clase sin lógica: solo propiedades, pensada para llevar datos de una capa a otra. No deberia heredar de la entidad ni referenciarla: es una clase aparte, con las propiedades que vos elijas.
         <br><br>
         En este ejercicio lo vamos a usar como el «formato de intercambio» entre BusinessLogic y Web: el servicio va a entregar y recibir DTOs, y la entidad <code class="inl">Usuario</code> se queda adentro de BusinessLogic. Eso nos sirve para dos cosas:
         <br><br>
@@ -209,19 +209,11 @@ public static class UsuarioMapper
   <div class="wrap">
     <div class="challenge">
       <h2>🏁 Vuelta extra (opcional)</h2>
-      <p class="goal">para los que terminaron antes</p>
       <ul>
         <li>¿Tiene sentido que el formulario de alta use un DTO con <code class="inl">Id</code>, si el Id lo pone el servicio? Creá un <code class="inl">UsuarioAltaDto</code> solo con lo que se carga en el formulario, y su método en el mapper.</li>
         <li>Agregá una página <i>Directorio</i> que muestre solo los nombres, con su propio DTO y su opción en el menú.</li>
       </ul>
     </div>
-
-    <!-- ===== PIE ===== -->
-    <footer>
-      <div class="rule"></div>
-      Capas, entidad de dominio y DTO · mapper a mano · Blazor con Rider y .NET 9. Ejercicio guiado de 45 minutos.
-      <br><button id="clear" type="button">Borrar las respuestas de este navegador</button>
-    </footer>
   </div>
 </body>
 </html>

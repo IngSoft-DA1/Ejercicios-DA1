@@ -1,14 +1,11 @@
 # Ejercicio DTO de Usuarios
 
-Ejercicio guiado de 45 minutos para entender para qué sirve un DTO: desacoplar el frontend de las
+Ejercicio para entender para qué sirve un DTO: desacoplar el frontend de las
 entidades de dominio y ocultar información que no debería salir de la lógica de negocio, como la
 contraseña de un usuario.
 
 | | |
 |---|---|
-| Duración | 45 minutos |
-| Modalidad | Grupos de 3 o parejas |
-| Nivel | Básico |
 | Herramientas | Rider y SDK de .NET 9 (con .NET 10 también funciona) |
 | Material | Solución inicial `LabDTO-inicial.zip` |
 
@@ -41,7 +38,7 @@ La app corre en `http://localhost:5080`.
   alumno completa.
 - **Tabla de análisis** en el paso 1, con preguntas para responder en grupo antes de tocar el código.
 - **Recuadros** dentro de los pasos: pistas, checkpoints y preguntas «Para pensar».
-- **Vuelta extra** opcional para quien termina antes.
+- **Vuelta extra** opcional.
 
 ## Los pasos
 
@@ -75,10 +72,3 @@ propio DTO que muestre solo los nombres.
 - Mapper escrito a mano (`ToDto` y `ToEntity`)
 - Servicios que entregan y reciben DTOs
 - Ocultar datos sensibles al frontend
-
-## Cómo está pensado
-
-- El ejercicio empieza por leer y analizar código existente, no por escribirlo.
-- Los alumnos completan `TODO` numerados sobre código que ya viene armado.
-- Las pistas explican cómo se hace en forma genérica, sin dar la respuesta.
-- Las preguntas «Para pensar» no traen la respuesta: quedan como puente hacia la clase teórica.
