@@ -9,9 +9,9 @@ Algunos incluyen un proyecto listo para abrir con Rider; otros se arman desde ce
 | Ejercicio | Letra | Proyecto para Rider |
 |---|---|---|
 | Blazor: página, inyección de dependencias, Scoped y Singleton | [Letra Blazor](https://blazor.debuggeruy.com/) | No |
-| Blazor: flujo de trabajo con IA | [Letra Blazor IA](https://blazor-ia.netlify.app/) | No |
+| Blazor: flujo de trabajo con IA | [Letra Blazor IA](https://blazoria.debuggeruy.com/) | No |
 | DTO de Usuarios: capas, DTO y mapper | [Letra DTO](https://dto.debuggeruy.com/) | Sí |
-| DTO de Usuarios: flujo de trabajo con agente IA | [Letra DTO IA](https://dto-ia.netlify.app/) | Sí |
+| DTO de Usuarios: flujo de trabajo con agente IA | [Letra DTO IA](https://dtoia.debuggeruy.com/) | Sí |
 | EF Code First: DbContext, migraciones y herencia | [Letra EF](https://ef.debuggeruy.com/) | Sí |
 
 ## Cómo leer la letra
